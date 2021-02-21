@@ -1,0 +1,1 @@
+In Helpers.cs file replace the path to app in appPath variable.
