@@ -1,6 +1,5 @@
 using Appium_Testing.ActivityObjects;
 using NUnit.Framework;
-using OpenQA.Selenium.Appium.Android;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -26,8 +25,11 @@ namespace Appium_Testing
 
             List<ContactData> listFoundedRes = seachActivity.GetAllFoundedContacts();
 
-            Assert.That(listFoundedRes.Any(cont => cont.FirstName == "Steve"));
-            Assert.That(listFoundedRes.Any(cont => cont.LastName == "Jobs"));
+            Assert.Multiple(() =>
+            {
+                Assert.That(listFoundedRes.Any(cont => cont.FirstName == "Steve"));
+                Assert.That(listFoundedRes.Any(cont => cont.LastName == "Jobs"));
+            });
         }
 
 

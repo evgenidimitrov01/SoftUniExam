@@ -11,6 +11,5 @@ namespace Appium_Testing.ActivityObjects
         }
 
         public AndroidElement BtnConnect => driver.FindElementById(Helpers.appPackage + ":id/buttonConnect");
-
     }
 }
