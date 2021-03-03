@@ -1,1 +1,1 @@
-In Helpers.cs file replace the path to app in appPath variable.
+In Helpers.cs file replace the path to "contactbook-androidclient.apk" app in appPath variable.
