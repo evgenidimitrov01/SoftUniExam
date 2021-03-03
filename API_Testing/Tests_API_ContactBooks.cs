@@ -12,9 +12,10 @@ namespace API_Testing
     [TestFixture]
     public class Tests
     {
-        const string baseUrl = "https://contactbook.nakov.repl.co/api";
+        const string baseUrl = "https://contactbook.evgenidimitrov0.repl.co/api";
         private RestClient client;
-        [SetUp]
+
+        [OneTimeSetUp]
         public void Setup()
         {
             this.client = new RestClient(baseUrl);
@@ -36,8 +37,11 @@ namespace API_Testing
             List<EndPointsResponse> endPoints = new JsonDeserializer().Deserialize<List<EndPointsResponse>>(response);
             foreach (EndPointsResponse endPoint in endPoints)
             {
-                Assert.IsTrue(!string.IsNullOrEmpty(endPoint.Route));
-                Assert.IsTrue(!string.IsNullOrEmpty(endPoint.Method));
+                Assert.Multiple(() =>
+                {
+                    Assert.IsTrue(!string.IsNullOrEmpty(endPoint.Route));
+                    Assert.IsTrue(!string.IsNullOrEmpty(endPoint.Method));
+                });
             }
         }
 
@@ -55,12 +59,15 @@ namespace API_Testing
 
             List<ContactsResponse> contacts = new JsonDeserializer().Deserialize<List<ContactsResponse>>(response);
             ContactsResponse firstContact = contacts[0];
-            Assert.AreEqual(1, firstContact.Id);
-            Assert.AreEqual("Steve", firstContact.FirstName);
-            Assert.AreEqual("Jobs", firstContact.LastName);
-            Assert.IsTrue(Helpers.IsValidEmail(firstContact.Email));
-            Assert.IsTrue(!string.IsNullOrEmpty(firstContact.Phone));
-            Assert.IsTrue(!string.IsNullOrEmpty(firstContact.Comments));
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual(1, firstContact.Id);
+                Assert.AreEqual("Steve", firstContact.FirstName);
+                Assert.AreEqual("Jobs", firstContact.LastName);
+                Assert.IsTrue(Helpers.IsValidEmail(firstContact.Email));
+                Assert.IsTrue(!string.IsNullOrEmpty(firstContact.Phone));
+                Assert.IsTrue(!string.IsNullOrEmpty(firstContact.Comments));
+            });
         }
 
         [Test, Category("API Tests")]
@@ -78,12 +85,15 @@ namespace API_Testing
 
             List<ContactsResponse> searchedContact = new JsonDeserializer().Deserialize<List<ContactsResponse>>(response);
             ContactsResponse contact = searchedContact[0];
-            Assert.IsTrue(contact.Id > 0);
-            Assert.AreEqual("Albert", contact.FirstName);
-            Assert.AreEqual("Einstein", contact.LastName);
-            Assert.IsTrue(Helpers.IsValidEmail(contact.Email));
-            Assert.IsTrue(!string.IsNullOrEmpty(contact.Phone));
-            Assert.IsTrue(!string.IsNullOrEmpty(contact.Comments));
+            Assert.Multiple(() =>
+            {
+                Assert.IsTrue(contact.Id > 0);
+                Assert.AreEqual("Albert", contact.FirstName);
+                Assert.AreEqual("Einstein", contact.LastName);
+                Assert.IsTrue(Helpers.IsValidEmail(contact.Email));
+                Assert.IsTrue(!string.IsNullOrEmpty(contact.Phone));
+                Assert.IsTrue(!string.IsNullOrEmpty(contact.Comments));
+            });
         }
 
         [Test, Category("API Tests")]
@@ -159,6 +169,7 @@ namespace API_Testing
             //Act
             var getRequest = new RestRequest("/contacts", Method.GET);
             IRestResponse getResponse = client.Execute(getRequest);
+
             //Assert
             Assert.AreEqual(HttpStatusCode.OK, getResponse.StatusCode);
 
@@ -167,6 +178,5 @@ namespace API_Testing
             Assert.That(contacts.Any(cont => cont.FirstName == newContact.FirstName));
         }
         #endregion
-
     }
 }
