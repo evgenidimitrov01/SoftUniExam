@@ -2,6 +2,7 @@ using NUnit.Framework;
 using Selenium_Testing.PageObjects;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 
 namespace Selenium_Testing
 {
@@ -19,23 +20,30 @@ namespace Selenium_Testing
         [Test, Category("Selenium Tests")]
         public void Test_FirstContactIsSteveJobs()
         {
-            BasePage basePage = new BasePage(Driver.driver);
-            basePage.BtnContactsPage.Click();
+            ContactsPage contactsPage = new ContactsPage();
+            contactsPage.Open();
+            Assert.Multiple(() =>
+            {
+                Assert.IsTrue(contactsPage.IsOpen());
+                Assert.AreEqual(contactsPage.PageTitle.Text, "View Contacts");
+            });
 
-            ContactsPage contactsPage = new ContactsPage(Driver.driver);
-            List<ContactData> listContacts = contactsPage.GetAllContactsInTable();
+            ContactData firstContact = contactsPage.GetFirstResult();
 
-            ContactData firstContact = listContacts[0];
-
-            Assert.AreEqual("Steve", firstContact.FirstName);
-            Assert.AreEqual("Jobs", firstContact.LastName);
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual("Steve", firstContact.FirstName);
+                Assert.AreEqual("Jobs", firstContact.LastName);
+            });
         }
 
         [Test, Category("Selenium Tests")]
         public void Test_NumberOfContacts()
         {
-            Driver.driver.Navigate().GoToUrl(Helpers.baseUrl);
-            HomePage homePage = new HomePage(Driver.driver);
+            HomePage homePage = new HomePage();
+            homePage.Open();
+            Assert.IsTrue(homePage.IsOpen());
+            Assert.AreEqual(homePage.PageTitle.Text, "Welcome");
 
             int contactsNumber = homePage.GetContactsNumber();
             
@@ -45,43 +53,65 @@ namespace Selenium_Testing
         [Test, Category("Selenium Tests")]
         public void Test_SearchByKeyword()
         {
-            Driver.driver.Navigate().GoToUrl(Helpers.baseUrl + "contacts/search");
-            SearchPage searchPage = new SearchPage(Driver.driver);
-            searchPage.SearchForElement("albert");
-            List<ContactData> listSearchedItems = searchPage.GetAllSearchedResultsInTable();
+            SearchPage searchPage = new SearchPage();
+            searchPage.Open();
+            Assert.Multiple(() =>
+            {
+                Assert.IsTrue(searchPage.IsOpen());
+                Assert.AreEqual(searchPage.PageTitle.Text, "Search Contacts");
+            });
 
+            searchPage.SearchForElement("albert");
+
+            List<ContactData> listSearchedItems = searchPage.GetAllSearchedResultsInTable();
             ContactData firstContact = listSearchedItems[0];
 
-            Assert.AreEqual("Albert", firstContact.FirstName);
-            Assert.AreEqual("Einstein", firstContact.LastName);
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual("Albert", firstContact.FirstName);
+                Assert.AreEqual("Einstein", firstContact.LastName);
+            });
         }
 
         [Test, Category("Selenium Tests")]
         public void Test_SearchByInvalidKeyword()
         {
-            Driver.driver.Navigate().GoToUrl(Helpers.baseUrl + "contacts/search");
-            SearchPage searchPage = new SearchPage(Driver.driver);
+            string invalidKeyword = "invalid" + Helpers.GetRandomNumber();
+            SearchPage searchPage = new SearchPage();
+            searchPage.Open();
+            Assert.Multiple(() =>
+            {
+                Assert.IsTrue(searchPage.IsOpen());
+                Assert.AreEqual(searchPage.PageTitle.Text, "Search Contacts");
+            });
 
-            searchPage.SearchForElement("invalid2635");
+            searchPage.SearchForElement(invalidKeyword);
 
             Assert.AreEqual("No contacts found.", searchPage.DivSearchResult.Text);
         }
 
         [Test, Category("Selenium Tests")]
-        [TestCase("", "lastname", "email@email.bg", "phone", "comment", "Error: First name cannot be empty!", TestName = "Empty First Name")]
-        [TestCase("firstname", "", "email@email.bg", "phone", "comment", "Error: Last name cannot be empty!", TestName = "Empty Last Name")]
-        [TestCase("firstname", "lastname", "", "phone", "comment", "Error: Invalid email!", TestName = "Empty Email")]
+        [TestCase("", "lastname", "email@email.bg", "phone", "comment", "Error: First name cannot be empty!", TestName = "Test_EmptyFirstName")]
+        [TestCase("firstname", "", "email@email.bg", "phone", "comment", "Error: Last name cannot be empty!", TestName = "Test_EmptyLastName")]
+        [TestCase("firstname", "lastname", "", "phone", "comment", "Error: Invalid email!", TestName = "Test_EmptyEmail")]
         public void Test_CreateContactInvalidData(string fName, string lname, string email, string phone, string comment, string expected)
         {
-            Driver.driver.Navigate().GoToUrl(Helpers.baseUrl + "contacts/create");
-            CreateContactPage createContactPage = new CreateContactPage(Driver.driver);
+            CreateContactPage createContactPage = new CreateContactPage();
+            createContactPage.Open();
+            Assert.Multiple(() =>
+            {
+                Assert.IsTrue(createContactPage.IsOpen());
+                Assert.AreEqual("Create Contact", createContactPage.PageTitle.Text);
+            });
 
-            ContactData newContact = new ContactData();
-            newContact.FirstName = fName;
-            newContact.LastName = lname;
-            newContact.Email = email;
-            newContact.Phone = phone;
-            newContact.Comments = comment;
+            ContactData newContact = new ContactData()
+            {
+                FirstName = fName,
+                LastName = lname,
+                Email = email,
+                Phone = phone,
+                Comments = comment
+            };
 
             createContactPage.CreateNewContact(newContact);
 
@@ -91,22 +121,29 @@ namespace Selenium_Testing
         [Test, Category("Selenium Tests")]
         public void Test_CreateContactValidData()
         {
-            Driver.driver.Navigate().GoToUrl(Helpers.baseUrl + "contacts/create");
-            CreateContactPage createContactPage = new CreateContactPage(Driver.driver);
+            CreateContactPage createContactPage = new CreateContactPage();
+            createContactPage.Open();
+            Assert.Multiple(() =>
+            {
+                Assert.IsTrue(createContactPage.IsOpen());
+                Assert.AreEqual("Create Contact", createContactPage.PageTitle.Text);
+            });
 
-            ContactData newContact = new ContactData();
-            newContact.FirstName = Helpers.GetRandomString(10);
-            newContact.LastName = Helpers.GetRandomString(10);
-            newContact.Email = "evgeni@abv.bg";
-            newContact.Phone = "+1234567890";
-            newContact.Comments = "Random comment: " + Helpers.GetRandomString(20);
+            ContactData newContact = new ContactData()
+            {
+                FirstName = Helpers.GetRandomString(10),
+                LastName = Helpers.GetRandomString(10),
+                Email = "evgeni@abv.bg",
+                Phone = "+1234567890",
+                Comments = "Random comment: " + Helpers.GetRandomString(20)
+            };
 
             createContactPage.CreateNewContact(newContact);
 
-            ContactsPage contactsPage = new ContactsPage(Driver.driver);
+            ContactsPage contactsPage = new ContactsPage();
             List<ContactData> listContacts = contactsPage.GetAllContactsInTable();
 
-            Assert.That(listContacts.Any(cont => cont.FirstName == newContact.FirstName));
+            Assert.That(listContacts.Any(cont => cont.FirstName == newContact.FirstName));            
         }
 
         [OneTimeTearDown]

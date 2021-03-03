@@ -1,26 +1,36 @@
 ﻿using OpenQA.Selenium;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Selenium_Testing.PageObjects
 {
-    public class CreateContactPage
+    public class CreateContactPage : BasePage
     {
-        IWebDriver driver;
+        private readonly By TxtFnameId = By.Id("firstName");
+        private readonly By TxtLnameId = By.Id("lastName");
+        private readonly By TxtEmailId = By.Id("email");
+        private readonly By TxtPhoneId = By.Id("phone");
+        private readonly By TxtCommId = By.Id("comments");
+        private readonly By BtnCreateId = By.Id("create");
+        private readonly By DivErrSelector = By.CssSelector("div.err");
 
-        public CreateContactPage(IWebDriver driver)
+        public CreateContactPage() { }
+
+        public IWebElement TxtFirstName => driver.FindElement(TxtFnameId);
+        public IWebElement TxtLasrName => driver.FindElement(TxtLnameId);
+        public IWebElement TxtEmail => driver.FindElement(TxtEmailId);
+        public IWebElement TxtPhone => driver.FindElement(TxtPhoneId);
+        public IWebElement TxtComments => driver.FindElement(TxtCommId);
+        public IWebElement BtnCreate => driver.FindElement(BtnCreateId);
+        public IWebElement DivErr => driver.FindElement(DivErrSelector);
+
+        public void Open()
         {
-            this.driver = driver;
+            driver.Navigate().GoToUrl(Helpers.baseUrl + "contacts/create");
         }
 
-        public IWebElement TxtFirstName => driver.FindElement(By.Id("firstName"));
-        public IWebElement TxtLasrName => driver.FindElement(By.Id("lastName"));
-        public IWebElement TxtEmail => driver.FindElement(By.Id("email"));
-        public IWebElement TxtPhone => driver.FindElement(By.Id("phone"));
-        public IWebElement TxtComments => driver.FindElement(By.Id("comments"));
-        public IWebElement BtnCreate => driver.FindElement(By.Id("create"));
-        public IWebElement DivErr => driver.FindElement(By.CssSelector("div.err"));
+        public bool IsOpen()
+        {
+            return driver.Url == Helpers.baseUrl + "contacts/create";
+        }
 
         public void CreateNewContact(ContactData contact)
         {

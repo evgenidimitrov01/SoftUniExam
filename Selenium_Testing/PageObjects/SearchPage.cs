@@ -4,19 +4,37 @@ using System.Collections.Generic;
 
 namespace Selenium_Testing.PageObjects
 {
-    public class SearchPage
+    public class SearchPage : BasePage
     {
-        IWebDriver driver;
+        private readonly By TxtSeachBoxId = By.Id("keyword");
+        private readonly By BtnSearchId = By.Id("search");
+        private readonly By DivSearchResultId = By.Id("searchResult");
+        private readonly By ContactsGridSelector = By.CssSelector("div.contacts-grid");
 
-        public SearchPage(IWebDriver driver)
+        private readonly By TableSelector = By.CssSelector("table.contact-entry");
+
+        private readonly By TableFnameSelector = By.CssSelector("tbody > tr.fname > td");
+        private readonly By TableLnameSelector = By.CssSelector("tbody > tr.lname > td");
+        private readonly By TableEmailSelector = By.CssSelector("tbody > tr.email > td");
+        private readonly By TablePhoneSelector = By.CssSelector("tbody > tr.phone > td");
+        private readonly By TableCommentsSelector = By.CssSelector("tbody > tr.comments > td");
+
+        public SearchPage() { }
+
+        public IWebElement TxtSeachBox => driver.FindElement(TxtSeachBoxId);
+        public IWebElement BtnSearch => driver.FindElement(BtnSearchId);
+        public IWebElement DivSearchResult => driver.FindElement(DivSearchResultId);
+        public IWebElement ContactsGrid => driver.FindElement(ContactsGridSelector);
+
+        public void Open()
         {
-            this.driver = driver;
+            driver.Navigate().GoToUrl(Helpers.baseUrl + "contacts/search");
         }
 
-        public IWebElement TxtSeachBox => driver.FindElement(By.Id("keyword"));
-        public IWebElement BtnSearch => driver.FindElement(By.Id("search"));
-        public IWebElement DivSearchResult => driver.FindElement(By.Id("searchResult"));
-        public IWebElement ContactsGrid => driver.FindElement(By.CssSelector("div.contacts-grid"));
+        public bool IsOpen()
+        {
+            return driver.Url == Helpers.baseUrl + "contacts/search";
+        }
 
         public void SearchForElement(string keyword)
         {
@@ -28,25 +46,18 @@ namespace Selenium_Testing.PageObjects
         public List<ContactData> GetAllSearchedResultsInTable()
         {
             List<ContactData> listTableRows = new List<ContactData>();
-            var table = driver.FindElements(By.CssSelector("table.contact-entry"));
+            var table = driver.FindElements(TableSelector);
             foreach (var row in table)
             {
                 if (row.Text == "Keyword")
                     continue;
 
-                IWebElement fName = row.FindElement(By.CssSelector("tbody > tr.fname > td"));
-                IWebElement lName = row.FindElement(By.CssSelector("tbody > tr.lname > td"));
-                IWebElement email = row.FindElement(By.CssSelector("tbody > tr.email > td"));
-                IWebElement phone = row.FindElement(By.CssSelector("tbody > tr.phone > td"));
-                IWebElement comment = row.FindElement(By.CssSelector("tbody > tr.comments > td"));
-                listTableRows.Add(new ContactData()
-                {
-                    FirstName = fName.Text,
-                    LastName = lName.Text,
-                    Email = email.Text,
-                    Phone = phone.Text,
-                    Comments = comment.Text
-                });
+                IWebElement fName = row.FindElement(TableFnameSelector);
+                IWebElement lName = row.FindElement(TableLnameSelector);
+                IWebElement email = row.FindElement(TableEmailSelector);
+                IWebElement phone = row.FindElement(TablePhoneSelector);
+                IWebElement comment = row.FindElement(TableCommentsSelector);
+                listTableRows.Add(Helpers.FillContact(fName.Text, lName.Text, email.Text, phone.Text, comment.Text));
             }
             return listTableRows;
         }

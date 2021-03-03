@@ -1,22 +1,34 @@
 ﻿using OpenQA.Selenium;
 using System.Linq;
+using System.Xml.Linq;
 
 namespace Selenium_Testing.PageObjects
 {
-    public class HomePage
+    public class HomePage : BasePage
     {
-        IWebDriver driver;
+        private readonly By SectionContactsSelector = By.CssSelector("body > main > section");
+        private readonly By BtnViewContactsSelector = By.CssSelector("body > main > div > a:nth-child(1)");
+        private readonly By BtnCreateContactSelector = By.CssSelector("body > main > div > a:nth-child(2)");
+        private readonly By BtnSearchContactSelector = By.CssSelector("body > main > div > a:nth-child(3)");
+        private readonly By BtnRestFullApiSelector = By.CssSelector("body > main > div > a:nth-child(4");
 
-        public HomePage(IWebDriver driver)
+        public HomePage() { }
+
+        public IWebElement SectionContacts => driver.FindElement(SectionContactsSelector);
+        public IWebElement BtnViewContacts => driver.FindElement(BtnViewContactsSelector);
+        public IWebElement BtnCreateContact => driver.FindElement(BtnCreateContactSelector);
+        public IWebElement BtnSearchContacts => driver.FindElement(BtnSearchContactSelector);
+        public IWebElement BtnRestFullApi => driver.FindElement(BtnRestFullApiSelector);
+
+        public void Open()
         {
-            this.driver = driver;
+            driver.Navigate().GoToUrl(Helpers.baseUrl);
         }
 
-        public IWebElement SectionContacts => driver.FindElement(By.CssSelector("body > main > section"));
-        public IWebElement BtnViewContacts => driver.FindElement(By.CssSelector("body > main > div > a:nth-child(1)"));
-        public IWebElement BtnCreateContact => driver.FindElement(By.CssSelector("body > main > div > a:nth-child(2)"));
-        public IWebElement BtnSearchContacts => driver.FindElement(By.CssSelector("body > main > div > a:nth-child(3)"));
-        public IWebElement BtnRestFullApi => driver.FindElement(By.CssSelector("body > main > div > a:nth-child(4)"));
+        public bool IsOpen()
+        {
+            return driver.Url == Helpers.baseUrl;
+        }
 
         public int GetContactsNumber()
         {
